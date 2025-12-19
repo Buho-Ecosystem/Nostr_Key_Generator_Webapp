@@ -115,13 +115,13 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-green-50/50 via-white to-green-50/30">
       <ProgressIndicator />
       
-      <main className={currentStep !== 'welcome' && currentStep !== 'success' ? 'pt-16' : ''}>
+      <main className={currentStep !== 'welcome' && currentStep !== 'success' ? 'pt-16 pb-20' : ''}>
         {/* Escape Hint */}
         {showEscapeHint && currentStep !== 'welcome' && currentStep !== 'success' && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm flex items-center space-x-2 shadow-xl">
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-500 pointer-events-none">
+            <div className="bg-black/90 backdrop-blur-md text-white px-5 py-2.5 rounded-full text-sm flex items-center space-x-2 shadow-2xl border border-white/10">
               <span>Press</span>
-              <kbd className="bg-white/20 px-2 py-1 rounded text-xs font-mono">ESC</kbd>
+              <kbd className="bg-white/20 px-2.5 py-1 rounded text-xs font-mono font-semibold">ESC</kbd>
               <span>to start over</span>
             </div>
           </div>
