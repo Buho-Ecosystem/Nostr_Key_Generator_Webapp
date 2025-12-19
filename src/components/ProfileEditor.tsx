@@ -8,6 +8,84 @@ interface ProfileEditorProps {
   onNext: () => void;
 }
 
+type InputKind = 'text' | 'url' | 'email' | 'textarea';
+
+interface InputFieldProps {
+  label: string;
+  field: keyof NostrProfile;
+  type?: InputKind;
+  placeholder: string;
+  validation?: 'url' | 'email';
+  maxLength?: number;
+  localProfile: NostrProfile;
+  validationErrors: Record<string, string>;
+  handleChange: (field: keyof NostrProfile, value: string) => void;
+  handleUrlBlur: (field: keyof NostrProfile, value: string) => void;
+  handleEmailBlur: (field: keyof NostrProfile, value: string) => void;
+}
+
+const InputField = ({
+  label,
+  field,
+  type = 'text',
+  placeholder,
+  validation,
+  maxLength,
+  localProfile,
+  validationErrors,
+  handleChange,
+  handleUrlBlur,
+  handleEmailBlur
+}: InputFieldProps) => (
+  <div className="space-y-2">
+    <label className="block text-sm font-medium text-gray-800">
+      {label}
+      {typeof maxLength === 'number' && (
+        <span className="text-xs text-gray-500 ml-2">
+          ({(localProfile[field] as string)?.length || 0}/{maxLength})
+        </span>
+      )}
+    </label>
+
+    <div className="relative">
+      {type === 'textarea' ? (
+        <textarea
+          value={(localProfile[field] as string) || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          rows={4}
+          className={`w-full p-3 rounded-xl border bg-white text-gray-900 placeholder-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition
+                      ${validationErrors[field] ? 'border-red-300' : 'border-gray-300 hover:border-gray-400'} resize-none text-sm`}
+        />
+      ) : (
+        <input
+          type={type}
+          value={(localProfile[field] as string) || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          onBlur={(e) => {
+            if (validation === 'url') handleUrlBlur(field, e.target.value);
+            if (validation === 'email') handleEmailBlur(field, e.target.value);
+          }}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          className={`w-full p-3 rounded-xl border bg-white text-gray-900 placeholder-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition
+                      ${validationErrors[field] ? 'border-red-300' : 'border-gray-300 hover:border-gray-400'} text-sm`}
+        />
+      )}
+
+      {validationErrors[field] && (
+        <div className="absolute -bottom-5 left-0 flex items-center text-red-600 text-xs">
+          <AlertCircle className="w-4 h-4 mr-1.5" />
+          {validationErrors[field]}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
 export default function ProfileEditor({ profile, onProfileUpdate, onNext }: ProfileEditorProps) {
   const [localProfile, setLocalProfile] = useState<NostrProfile>(profile);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -66,72 +144,6 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
     }
   };
 
-  type InputKind = 'text' | 'url' | 'email' | 'textarea';
-
-  const InputField = ({
-    label,
-    field,
-    type = 'text',
-    placeholder,
-    validation,
-    maxLength
-  }: {
-    label: string;
-    field: keyof NostrProfile;
-    type?: InputKind;
-    placeholder: string;
-    validation?: 'url' | 'email';
-    maxLength?: number;
-  }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-800">
-        {label}
-        {typeof maxLength === 'number' && (
-          <span className="text-xs text-gray-500 ml-2">
-            ({(localProfile[field] as string)?.length || 0}/{maxLength})
-          </span>
-        )}
-      </label>
-
-      <div className="relative">
-        {type === 'textarea' ? (
-          <textarea
-            value={(localProfile[field] as string) || ''}
-            onChange={(e) => handleChange(field, e.target.value)}
-            placeholder={placeholder}
-            maxLength={maxLength}
-            rows={4}
-            className={`w-full p-3 rounded-xl border bg-white text-gray-900 placeholder-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition
-                        ${validationErrors[field] ? 'border-red-300' : 'border-gray-300 hover:border-gray-400'} resize-none text-sm`}
-          />
-        ) : (
-          <input
-            type={type}
-            value={(localProfile[field] as string) || ''}
-            onChange={(e) => handleChange(field, e.target.value)}
-            onBlur={(e) => {
-              if (validation === 'url') handleUrlBlur(field, e.target.value);
-              if (validation === 'email') handleEmailBlur(field, e.target.value);
-            }}
-            placeholder={placeholder}
-            maxLength={maxLength}
-            className={`w-full p-3 rounded-xl border bg-white text-gray-900 placeholder-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition
-                        ${validationErrors[field] ? 'border-red-300' : 'border-gray-300 hover:border-gray-400'} text-sm`}
-          />
-        )}
-
-        {validationErrors[field] && (
-          <div className="absolute -bottom-5 left-0 flex items-center text-red-600 text-xs">
-            <AlertCircle className="w-4 h-4 mr-1.5" />
-            {validationErrors[field]}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
       <div className="max-w-2xl mx-auto w-full">
@@ -154,6 +166,11 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
               field="display_name"
               placeholder="John Doe"
               maxLength={100}
+              localProfile={localProfile}
+              validationErrors={validationErrors}
+              handleChange={handleChange}
+              handleUrlBlur={handleUrlBlur}
+              handleEmailBlur={handleEmailBlur}
             />
 
             <InputField
@@ -161,6 +178,11 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
               field="name"
               placeholder="johndoe"
               maxLength={50}
+              localProfile={localProfile}
+              validationErrors={validationErrors}
+              handleChange={handleChange}
+              handleUrlBlur={handleUrlBlur}
+              handleEmailBlur={handleEmailBlur}
             />
 
             <InputField
@@ -169,6 +191,11 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
               type="textarea"
               placeholder="Tell people about yourself..."
               maxLength={500}
+              localProfile={localProfile}
+              validationErrors={validationErrors}
+              handleChange={handleChange}
+              handleUrlBlur={handleUrlBlur}
+              handleEmailBlur={handleEmailBlur}
             />
 
             <InputField
@@ -177,6 +204,11 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
               type="url"
               placeholder="https://example.com/photo.jpg"
               validation="url"
+              localProfile={localProfile}
+              validationErrors={validationErrors}
+              handleChange={handleChange}
+              handleUrlBlur={handleUrlBlur}
+              handleEmailBlur={handleEmailBlur}
             />
 
             <InputField
@@ -185,6 +217,11 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
               type="url"
               placeholder="https://yoursite.com"
               validation="url"
+              localProfile={localProfile}
+              validationErrors={validationErrors}
+              handleChange={handleChange}
+              handleUrlBlur={handleUrlBlur}
+              handleEmailBlur={handleEmailBlur}
             />
 
             <InputField
@@ -193,6 +230,11 @@ export default function ProfileEditor({ profile, onProfileUpdate, onNext }: Prof
               type="email"
               placeholder="you@getalby.com"
               validation="email"
+              localProfile={localProfile}
+              validationErrors={validationErrors}
+              handleChange={handleChange}
+              handleUrlBlur={handleUrlBlur}
+              handleEmailBlur={handleEmailBlur}
             />
           </div>
         </div>
