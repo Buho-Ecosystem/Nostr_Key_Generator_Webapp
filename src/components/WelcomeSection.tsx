@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Shield, Zap, Globe, ArrowRight, Users, Key, Radio, Info, X, HelpCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Shield, Zap, Globe, ArrowRight, Users, Key, Radio, Info, HelpCircle } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -12,7 +12,7 @@ export default function WelcomeSection({ onNext }: WelcomeSectionProps) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Listen for the custom event from header
-  React.useEffect(() => {
+  useEffect(() => {
     const handleStartAccountCreation = () => {
       handleGetStarted();
     };

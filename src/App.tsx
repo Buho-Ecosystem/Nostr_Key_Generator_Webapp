@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import WelcomeSection from './components/WelcomeSection';
 import KeyGenerationSection from './components/KeyGenerationSection';
 import BackupSection from './components/BackupSection';
 import ProfileEditor from './components/ProfileEditor';
-import SummarySection from './components/SummarySection';
 import RelaySection from './components/RelaySection';
 import SuccessSection from './components/SuccessSection';
-import type { AppMode, AppStep, KeyPair, NostrProfile } from './types/nostr';
+import type { AppStep, KeyPair, NostrProfile } from './types/nostr';
 
 function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('welcome');
@@ -41,7 +40,7 @@ function App() {
   };
 
   // Handle escape key press
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && currentStep !== 'welcome' && currentStep !== 'success') {
         handleEscape();
@@ -53,12 +52,12 @@ function App() {
   }, [currentStep]);
 
   // Show escape hint after 3 seconds on non-welcome steps
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentStep !== 'welcome' && currentStep !== 'success') {
       const timer = setTimeout(() => {
         setShowEscapeHint(true);
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     } else {
       setShowEscapeHint(false);
